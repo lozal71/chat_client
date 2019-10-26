@@ -22,7 +22,7 @@ protocolIn::protocolIn(QTcpSocket *socket)
         QVariantMap Map = jsonObj.toVariantMap();
         //qWarning() << "Test: " << Map["ID"].toString();
         codeCommand = Map["1"].toInt();
-        dataCommand = Map["2"].toString();
+        jsonData = Map["2"].toJsonObject();
     }
 }
 
@@ -31,9 +31,9 @@ int protocolIn::getCode()
     return codeCommand;
 }
 
-QString protocolIn::getData()
+QJsonObject protocolIn::getData()
 {
-    return dataCommand;
+    return jsonData;
 }
 
 QByteArray protocolIn::getMessage(QTcpSocket *socket)

@@ -12,10 +12,10 @@ public:
     protocolIn();
     protocolIn(QTcpSocket *socket);
     int getCode();
-    QString getData();
+    QJsonObject getData();
 private:
     int codeCommand;
-    QString dataCommand;
+    QJsonObject jsonData;
     QByteArray getMessage(QTcpSocket *socket);
 };
 

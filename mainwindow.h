@@ -3,8 +3,11 @@
 
 #include <QMainWindow>
 #include <QTcpSocket>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include "protocol_in.h"
 #include "protocol_out.h"
+#include "chatclient.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,17 +20,24 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+public slots:
+    void logServerResponds(QString stringRespond);
+    void logSessionClose();
+    void slotSendQuery();
 private:
     Ui::MainWindow *ui;
-    QTcpSocket * socket;
-    QString datafromServer;
-    void clientReadData();
-    void buttonClick1();
-    void buttonClick2();
-    void removeSession();
+    chatClient * clientSocket;
+//    QString datafromServer;
+//    int id;
+//    void clientReadData();
+   // void getReplayFromServer();
+    //void removeSession();
+//    void userAuth();
+
+    void createUsersList();
 signals:
-    void connectClosed();
+    void SendQuery(QString param);
+//    void connectClosed();
 };
 
 #endif // MAINWINDOW_H

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include <QDebug>
 #include <QDataStream>
 
@@ -8,17 +9,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    socket = new QTcpSocket(this);
-    connect (socket, &QTcpSocket::readyRead,
-             this, &MainWindow::clientReadData);
-    connect(ui->pbProfile1, &QPushButton::clicked,
-            this, &MainWindow::buttonClick1);
-    connect(ui->pbProfile2, &QPushButton::clicked,
-            this, &MainWindow::buttonClick2);
-    connect(socket,&QTcpSocket::disconnected,
-            this,&MainWindow::connectClosed);
-    connect(this, &MainWindow::connectClosed,
-            this,&MainWindow::removeSession);
+    clientSocket = new chatClient();
+    createUsersList();
+    QString respond;
+    connect(clientSocket, SIGNAL(sessionClosed(QString)),
+            this, SLOT(logServerResponds(QString)));
+    connect(ui->pbSendQuery,&QPushButton::clicked,
+            this, &MainWindow::slotSendQuery);
+    connect(this,SIGNAL(SendQuery(QString)),
+            clientSocket, SLOT(sendQueryToServer(QString)));
+    connect(clientSocket,
+            SIGNAL(serverResponded(QString)),
+            this,
+            SLOT(logServerResponds(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -26,53 +29,31 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::clientReadData()
+void MainWindow::logServerResponds(QString stringRespond)
 {
-    protocolIn MessageIn(socket);
-    QString messageFromServer;
-    messageFromServer = MessageIn.getData();
-    ui->teLog->insertPlainText(messageFromServer+"\n");
-   // ui->leLogin->setText(messageFromServer);
-    qDebug() << "client read from server " << messageFromServer;
+    ui->teLog->insertPlainText(stringRespond + "\n");
 }
 
-void MainWindow::buttonClick1()
+void MainWindow::logSessionClose()
 {
-    if (socket->state() == QTcpSocket::UnconnectedState){
-        socket->connectToHost("127.0.0.1", 6000);
-    }
-    QByteArray message = "{\"1\": 1, \"2\":\"user1\"}";
-    qDebug() << message;
-    if (socket->waitForConnected()){
-        qDebug() <<"We have connect to server!!! send message";
-        protocolOut MessageOut(message);
-        socket->write(MessageOut.getMessageToClient());
-    }
-    else{
-        qDebug() << "client say - no connect";
-    }
+    ui->teLog->insertPlainText("session closed \n");
 }
 
-void MainWindow::buttonClick2()
+void MainWindow::slotSendQuery()
 {
-    if (socket->state() == QTcpSocket::UnconnectedState){
-        socket->connectToHost("127.0.0.1", 6000);
-    }
-    QByteArray message = "{\"1\": 1, \"2\":\"user2\"}";
-    qDebug() << message;
-    if (socket->waitForConnected()){
-        qDebug() <<"We have connect to server!!! I want to send message";
-        protocolOut MessageOut(message);
-        socket->write(MessageOut.getMessageToClient());
-    }
-    else{
-        qDebug() << "client say - no connect";
-    }
+    emit SendQuery(ui->cbxLogins->currentText());
 }
 
-void MainWindow::removeSession()
+//void MainWindow::userAuth()
+//{
+//    id = ui->sbClientID->value();
+//}
+
+void MainWindow::createUsersList()
 {
-     ui->teLog->insertPlainText("Connect closed \n");
+    ui->cbxLogins->addItem("login1");
+    ui->cbxLogins->addItem("login3");
+    ui->cbxLogins->addItem("login2");
 }
 
 
