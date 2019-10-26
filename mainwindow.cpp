@@ -61,7 +61,7 @@ void MainWindow::buttonClick2()
     QByteArray message = "{\"1\": 1, \"2\":\"user2\"}";
     qDebug() << message;
     if (socket->waitForConnected()){
-        qDebug() <<"We have connect to server!!! send message";
+        qDebug() <<"We have connect to server!!! I want to send message";
         protocolOut MessageOut(message);
         socket->write(MessageOut.getMessageToClient());
     }
