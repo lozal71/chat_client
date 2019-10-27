@@ -20,6 +20,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void setConnect();
 public slots:
     void logServerResponds(QString stringRespond);
     void logSessionClose();
@@ -27,17 +28,10 @@ public slots:
 private:
     Ui::MainWindow *ui;
     chatClient * clientSocket;
-//    QString datafromServer;
-//    int id;
-//    void clientReadData();
-   // void getReplayFromServer();
-    //void removeSession();
-//    void userAuth();
-
-    void createUsersList();
+    void fullCbxLogins();
+    void fullCbxPasswords();
 signals:
-    void SendQuery(QString param);
-//    void connectClosed();
+    void SendQuery(QString param1, QString param2);
 };
 
 #endif // MAINWINDOW_H

@@ -10,7 +10,7 @@ class chatClient : public QObject
 public:
     chatClient();
 public slots:
-    void sendQueryToServer(QString queryString);
+    void sendQueryToServer(QString loginString, QString passString);
     void SessionClose();
 private:
     QTcpSocket * socket;

@@ -28,14 +28,17 @@ void chatClient::setUserID()
 
 }
 
-void chatClient::sendQueryToServer(QString queryString)
+void chatClient::sendQueryToServer(QString loginString, QString passString)
 {
     if (socket->state() == QTcpSocket::UnconnectedState){
         socket->connectToHost("127.0.0.1", 6000);
     }
+    QJsonObject dataClient;
     QJsonObject queryClient;
+    dataClient.insert("1",loginString);
+    dataClient.insert("2",passString);
     queryClient.insert("1",1);
-    queryClient.insert("2",queryString);
+    queryClient.insert("2",dataClient);
     QJsonDocument doc(queryClient);
     QByteArray message = doc.toJson(QJsonDocument::Compact);
     //QByteArray message = "{\"1\": 1, \"2\":\"login1\"}";
