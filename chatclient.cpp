@@ -1,61 +1,54 @@
 #include "chatclient.h"
-#include "protocol_in.h"
-#include "protocol_out.h"
+
 
 chatClient::chatClient()
 {
     socket = new QTcpSocket();
 
     connect (socket, &QTcpSocket::readyRead,
-             this, &chatClient::clientReadData);
+             this, &chatClient::readRespond);
     connect(socket,&QTcpSocket::disconnected,
-            this, &chatClient::SessionClose);
+            this, &chatClient::slotSessionClose);
 }
 
-void chatClient::clientReadData()
+void chatClient::readRespond()
 {
-    QJsonObject tempObj;
+
     protocolIn MessageIn(socket);
-    tempObj = MessageIn.getData();
-    id = tempObj.value("1").toInt();
-    respondFromServer = tempObj.value("2").toString();
-    emit serverResponded(respondFromServer);
-    qDebug() << "client read from server  id" << id;
+    joRespond = MessageIn.getData();
+    emit serverResponded(joRespond);
+    //qDebug() << "client read from server  id" << id;
 }
 
-void chatClient::setUserID()
-{
 
-}
-
-void chatClient::sendQueryToServer(QString loginString, QString passString)
+void chatClient::slotSendQuery(QJsonObject joParam)
 {
     if (socket->state() == QTcpSocket::UnconnectedState){
         socket->connectToHost("127.0.0.1", 6000);
     }
-    QJsonObject dataClient;
     QJsonObject queryClient;
-    dataClient.insert("1",loginString);
-    dataClient.insert("2",passString);
-    queryClient.insert("1",1);
-    queryClient.insert("2",dataClient);
+    queryClient.insert("codeCommand",Auth);
+    queryClient.insert("joDataInput",joParam);
     QJsonDocument doc(queryClient);
-    QByteArray message = doc.toJson(QJsonDocument::Compact);
-    //QByteArray message = "{\"1\": 1, \"2\":\"login1\"}";
-    qDebug() << message;
+    QByteArray baMessage = doc.toJson(QJsonDocument::Compact);
+    //qDebug() << message;
     if (socket->waitForConnected()){
         //qDebug() <<"We have connect to server!!! send message";
-        protocolOut MessageOut(message);
+        protocolOut MessageOut(baMessage);
         socket->write(MessageOut.getMessageToClient());
     }
     else{
         //qDebug() << "client say - no connect";
-        emit serverResponded("no connection to server \n");
+        joRespond.insert("codeCommand",NoConnect);
+        joRespond.insert("joDataInput","no connection to server");
+        emit serverResponded(joRespond);
     }
 }
 
-void chatClient::SessionClose()
+void chatClient::slotSessionClose()
 {
-    emit sessionClosed("session closed \n");
+    joRespond.insert("codeCommand",SessionClosed);
+    joRespond.insert("joDataInput","session closed");
+    emit sessionClosed(joRespond);
 }
 

@@ -2,7 +2,8 @@
 #define CHATCLIENT_H
 
 #include <QTcpSocket>
-
+#include "protocol_in.h"
+#include "protocol_out.h"
 
 class chatClient : public QObject
 {
@@ -10,19 +11,17 @@ class chatClient : public QObject
 public:
     chatClient();
 public slots:
-    void sendQueryToServer(QString loginString, QString passString);
-    void SessionClose();
+    void slotSendQuery(QJsonObject joParam);
+    void slotSessionClose();
 private:
     QTcpSocket * socket;
-    QString respondFromServer;
+    QJsonObject joRespond;
     int id;
-    void clientReadData();
-    void getReplayFromServer();
-    void setUserID();
+    void readRespond();
 
 signals:
-    void sessionClosed(QString respondString);
-    void serverResponded(QString respondString);
+    void sessionClosed(QJsonObject joRespond);
+    void serverResponded(QJsonObject joRrespond);
 };
 
 #endif // CHATCLIENT_H

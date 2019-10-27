@@ -5,8 +5,6 @@
 #include <QTcpSocket>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include "protocol_in.h"
-#include "protocol_out.h"
 #include "chatclient.h"
 
 namespace Ui {
@@ -22,16 +20,15 @@ public:
     ~MainWindow();
     void setConnect();
 public slots:
-    void logServerResponds(QString stringRespond);
-    void logSessionClose();
-    void slotSendQuery();
+    void logServerResponds(QJsonObject joRespond);
+    void slotSendQueryAuth();
 private:
     Ui::MainWindow *ui;
     chatClient * clientSocket;
     void fullCbxLogins();
     void fullCbxPasswords();
 signals:
-    void SendQuery(QString param1, QString param2);
+    void SendQueryAuth(QJsonObject joAuth);
 };
 
 #endif // MAINWINDOW_H

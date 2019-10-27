@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
 #include <QDebug>
 #include <QDataStream>
 
@@ -22,44 +21,40 @@ MainWindow::~MainWindow()
 
 void MainWindow::setConnect()
 {
+
+    connect(ui->pbAuth, &QPushButton::clicked,
+            this,  &MainWindow::slotSendQueryAuth);
+    connect(this,  SIGNAL(SendQueryAuth(QJsonObject)),
+            clientSocket, SLOT(slotSendQuery(QJsonObject)));
     connect(clientSocket,
-            SIGNAL(sessionClosed(QString)),
+            SIGNAL(serverResponded(QJsonObject)),
             this,
-            SLOT(logServerResponds(QString)));
-    connect(ui->pbSendQuery,
-            &QPushButton::clicked,
-            this,
-            &MainWindow::slotSendQuery);
-    connect(this,
-            SIGNAL(SendQuery(QString,QString)),
-            clientSocket,
-            SLOT(sendQueryToServer(QString, QString)));
+            SLOT(logServerResponds(QJsonObject)));
     connect(clientSocket,
-            SIGNAL(serverResponded(QString)),
+            SIGNAL(sessionClosed(QJsonObject)),
             this,
-            SLOT(logServerResponds(QString)));
+            SLOT(logServerResponds(QJsonObject)));
 }
 
-void MainWindow::logServerResponds(QString stringRespond)
+void MainWindow::logServerResponds(QJsonObject joRespond)
 {
-    ui->teLog->insertPlainText(stringRespond + "\n");
+    ui->teLog->insertPlainText("Respond from server:\n");
+    for (const QString& eachKey : joRespond.keys())
+    {
+        ui->teLog->insertPlainText(joRespond.value(eachKey).toString());
+
+    }
 }
 
-void MainWindow::logSessionClose()
+
+void MainWindow::slotSendQueryAuth()
 {
-    ui->teLog->insertPlainText("session closed \n");
+    QJsonObject joTemp;
+    joTemp.insert("login",ui->cbxLogins->currentText());
+    joTemp.insert("pass",ui->cbxPasswords->currentText());
+    emit SendQueryAuth(joTemp);
 }
 
-void MainWindow::slotSendQuery()
-{
-    emit SendQuery(ui->cbxLogins->currentText(),
-                   ui->cbxPasswords->currentText());
-}
-
-//void MainWindow::userAuth()
-//{
-//    id = ui->sbClientID->value();
-//}
 
 void MainWindow::fullCbxLogins()
 {
