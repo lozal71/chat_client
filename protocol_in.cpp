@@ -1,28 +1,19 @@
 #include "protocol_in.h"
 
-protocolIn::protocolIn(){
-}
+
+
+//protocolIn::protocolIn(){
+//}
 
 protocolIn::protocolIn(QTcpSocket *socket)
 {
     if (socket->bytesAvailable()< 4){
-        codeCommand = 0;
+        codeCommand = ErrorMessage;
     }
     else{
-        QByteArray mess = getMessage(socket);
-        //QDataStream stream(mess);
-        QString jsonStr(mess);
-        //stream >> jsonStr;
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.toUtf8());
-        QJsonObject jsonObj = jsonDoc.object();
-//        for (const QString& eachKey : jsonObj.keys())
-//        {
-//            qDebug() << eachKey << "=" << jsonObj.value(eachKey).toString();
-//        }
-        QVariantMap Map = jsonObj.toVariantMap();
-        //qWarning() << "Test: " << Map["ID"].toString();
-        codeCommand = Map["1"].toInt();
-        jsonData = Map["2"].toJsonObject();
+        QJsonObject joMessage = getJsonObjectIN(socket);
+        codeCommand = joMessage.value("codeCommand").toInt();
+        joDataInput = joMessage.value("joDataInput").toObject();
     }
 }
 
@@ -33,40 +24,42 @@ int protocolIn::getCode()
 
 QJsonObject protocolIn::getData()
 {
-    return jsonData;
+    return joDataInput;
 }
 
-QByteArray protocolIn::getMessage(QTcpSocket *socket)
+QJsonObject protocolIn::getJsonObjectIN(QTcpSocket *socket)
 {
     quint32 packageSize; // размер приходящего сообщения
-    quint32 buffer_length = 0;
-    qint64 bytes_in_socket = 0;
-    QByteArray buffer;
-    buffer = socket->read(4); // считываем 4 байта
-    QDataStream stream(buffer);
+    quint32 baBufferLength = 0;
+    qint64 bytesInSocket = 0;
+    QByteArray baBuffer;
+    baBuffer = socket->read(4); // считываем 4 байта
+    QDataStream stream(baBuffer);
     stream >> packageSize; // получаем размер приходящего сообщения
-    qDebug() << "packageSize " << packageSize;
+    //qDebug() << "packageSize " << packageSize;
     packageSize+=4;
-    buffer.clear();
-    buffer_length = quint32(buffer.length());
-    bytes_in_socket = socket->bytesAvailable();
+    baBuffer.clear();
+    baBufferLength = quint32(baBuffer.length());
+    bytesInSocket = socket->bytesAvailable();
     // пока не получены все байты сообщения
     while (true) {
         // если число доступных байт в сокете меньше или равно, чем ожидаемый остаток
-        if (bytes_in_socket <= packageSize - buffer_length){
-            buffer.append(socket->readAll()); // читаем из буфера все, что есть
-            qDebug() << "buffer в цикле  " << buffer;
+        if (bytesInSocket <= packageSize - baBufferLength){
+            baBuffer.append(socket->readAll()); // читаем из буфера все, что есть
+            //qDebug() << "buffer в цикле  " << buffer;
         }
         else  {
                 // читаем только остаток
-                buffer.append(socket->read(packageSize - buffer_length));
+                baBuffer.append(socket->read(packageSize - baBufferLength));
             }
-        buffer_length += quint32(buffer.length());
-        bytes_in_socket = socket->bytesAvailable();
-        if (buffer_length == packageSize) break;
+        baBufferLength += quint32(baBuffer.length());
+        bytesInSocket = socket->bytesAvailable();
+        if (baBufferLength == packageSize) break;
     }
-    buffer.remove(0, 4);
-    qDebug() << "buffer в конце " << buffer;
-
-    return buffer;
+    baBuffer.remove(0, 4);
+    //qDebug() << "buffer в конце " << buffer;
+    QString sBuffer(baBuffer);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(sBuffer.toUtf8());
+    QJsonObject joInput = jsonDoc.object();
+    return joInput;
 }

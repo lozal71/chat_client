@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
 #include <QDebug>
 #include <QDataStream>
 
@@ -10,18 +9,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     clientSocket = new chatClient();
-    createUsersList();
-    QString respond;
-    connect(clientSocket, SIGNAL(sessionClosed(QString)),
-            this, SLOT(logServerResponds(QString)));
-    connect(ui->pbSendQuery,&QPushButton::clicked,
-            this, &MainWindow::slotSendQuery);
-    connect(this,SIGNAL(SendQuery(QString)),
-            clientSocket, SLOT(sendQueryToServer(QString)));
-    connect(clientSocket,
-            SIGNAL(serverResponded(QString)),
-            this,
-            SLOT(logServerResponds(QString)));
+    setConnect();
+    fullCbxLogins();
+    fullCbxPasswords();
 }
 
 MainWindow::~MainWindow()
@@ -29,31 +19,55 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::logServerResponds(QString stringRespond)
+void MainWindow::setConnect()
 {
-    ui->teLog->insertPlainText(stringRespond + "\n");
+
+    connect(ui->pbAuth, &QPushButton::clicked,
+            this,  &MainWindow::slotSendQueryAuth);
+    connect(this,  SIGNAL(SendQueryAuth(QJsonObject)),
+            clientSocket, SLOT(slotSendQuery(QJsonObject)));
+    connect(clientSocket,
+            SIGNAL(serverResponded(QJsonObject)),
+            this,
+            SLOT(logServerResponds(QJsonObject)));
+    connect(clientSocket,
+            SIGNAL(sessionClosed(QJsonObject)),
+            this,
+            SLOT(logServerResponds(QJsonObject)));
 }
 
-void MainWindow::logSessionClose()
+void MainWindow::logServerResponds(QJsonObject joRespond)
 {
-    ui->teLog->insertPlainText("session closed \n");
+    ui->teLog->insertPlainText("Respond from server:\n");
+    for (const QString& eachKey : joRespond.keys())
+    {
+        ui->teLog->insertPlainText(joRespond.value(eachKey).toString());
+
+    }
 }
 
-void MainWindow::slotSendQuery()
+
+void MainWindow::slotSendQueryAuth()
 {
-    emit SendQuery(ui->cbxLogins->currentText());
+    QJsonObject joTemp;
+    joTemp.insert("login",ui->cbxLogins->currentText());
+    joTemp.insert("pass",ui->cbxPasswords->currentText());
+    emit SendQueryAuth(joTemp);
 }
 
-//void MainWindow::userAuth()
-//{
-//    id = ui->sbClientID->value();
-//}
 
-void MainWindow::createUsersList()
+void MainWindow::fullCbxLogins()
 {
     ui->cbxLogins->addItem("login1");
-    ui->cbxLogins->addItem("login3");
     ui->cbxLogins->addItem("login2");
+    ui->cbxLogins->addItem("login3");
+}
+
+void MainWindow::fullCbxPasswords()
+{
+    ui->cbxPasswords->addItem("pass1");
+    ui->cbxPasswords->addItem("pass2");
+    ui->cbxPasswords->addItem("pass3");
 }
 
 

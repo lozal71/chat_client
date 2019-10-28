@@ -4,19 +4,22 @@
 #include <QTcpSocket>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QVariantMap>
+
+
+enum setCodeCommand {ErrorMessage = 0, Auth = 1, SessionClosed = 2, NoConnect = 3};
 
 class protocolIn: public QObject
 {
+
 public:
-    protocolIn();
+    //protocolIn();
     protocolIn(QTcpSocket *socket);
     int getCode();
     QJsonObject getData();
 private:
     int codeCommand;
-    QJsonObject jsonData;
-    QByteArray getMessage(QTcpSocket *socket);
+    QJsonObject joDataInput;
+    QJsonObject getJsonObjectIN(QTcpSocket *socket);
 };
 
 #endif // POROTOCOLIN_H
