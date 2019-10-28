@@ -1,6 +1,8 @@
 #include "protocol_out.h"
 
 protocolOut::protocolOut(){
+	
+	
 
 }
 
@@ -10,6 +12,8 @@ protocolOut::protocolOut(QByteArray &str)
     QDataStream stream(&block, QIODevice::ReadWrite);
     stream << packageSize;
     stream << str;
+
+
 
 
 //   QJsonObject jobject;
