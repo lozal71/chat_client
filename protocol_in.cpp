@@ -12,12 +12,12 @@ protocolIn::protocolIn(QTcpSocket *socket)
     }
     else{
         QJsonObject joMessage = getJsonObjectIN(socket);
-        codeCommand = joMessage.value("codeCommand").toInt();
+        codeCommand = setCodeCommand(joMessage.value("codeCommand").toInt());
         joDataInput = joMessage.value("joDataInput").toObject();
     }
 }
 
-int protocolIn::getCode()
+setCodeCommand protocolIn::getCode()
 {
     return codeCommand;
 }

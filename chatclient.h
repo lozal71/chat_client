@@ -16,12 +16,13 @@ public slots:
 private:
     QTcpSocket * socket;
     QJsonObject joRespond;
-    int id;
+    setCodeCommand codeCommand;
+    //int id;
     void readRespond();
 
 signals:
-    void sessionClosed(QJsonObject joRespond);
-    void serverResponded(QJsonObject joRrespond);
+    void sessionClosed(setCodeCommand code, QJsonObject joRespond);
+    void serverResponded(setCodeCommand code, QJsonObject joRrespond);
 };
 
 #endif // CHATCLIENT_H

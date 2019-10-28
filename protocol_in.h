@@ -14,10 +14,10 @@ class protocolIn: public QObject
 public:
     //protocolIn();
     protocolIn(QTcpSocket *socket);
-    int getCode();
+    setCodeCommand getCode();
     QJsonObject getData();
 private:
-    int codeCommand;
+    setCodeCommand codeCommand;
     QJsonObject joDataInput;
     QJsonObject getJsonObjectIN(QTcpSocket *socket);
 };

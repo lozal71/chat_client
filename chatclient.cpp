@@ -16,7 +16,8 @@ void chatClient::readRespond()
 
     protocolIn MessageIn(socket);
     joRespond = MessageIn.getData();
-    emit serverResponded(joRespond);
+    codeCommand = MessageIn.getCode();
+    emit serverResponded(codeCommand, joRespond);
     //qDebug() << "client read from server  id" << id;
 }
 
@@ -41,7 +42,7 @@ void chatClient::slotSendQuery(QJsonObject joParam)
         //qDebug() << "client say - no connect";
         joRespond.insert("codeCommand",NoConnect);
         joRespond.insert("joDataInput","no connection to server");
-        emit serverResponded(joRespond);
+        emit serverResponded(NoConnect,joRespond);
     }
 }
 
@@ -49,6 +50,6 @@ void chatClient::slotSessionClose()
 {
     joRespond.insert("codeCommand",SessionClosed);
     joRespond.insert("joDataInput","session closed");
-    emit sessionClosed(joRespond);
+    emit sessionClosed(SessionClosed, joRespond);
 }
 

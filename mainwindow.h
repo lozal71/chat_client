@@ -20,7 +20,7 @@ public:
     ~MainWindow();
     void setConnect();
 public slots:
-    void logServerResponds(QJsonObject joRespond);
+    void logServerResponds(setCodeCommand code, QJsonObject joRespond);
     void slotSendQueryAuth();
 private:
     Ui::MainWindow *ui;

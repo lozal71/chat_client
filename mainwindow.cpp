@@ -26,24 +26,39 @@ void MainWindow::setConnect()
             this,  &MainWindow::slotSendQueryAuth);
     connect(this,  SIGNAL(SendQueryAuth(QJsonObject)),
             clientSocket, SLOT(slotSendQuery(QJsonObject)));
-    connect(clientSocket,
-            SIGNAL(serverResponded(QJsonObject)),
-            this,
-            SLOT(logServerResponds(QJsonObject)));
-    connect(clientSocket,
-            SIGNAL(sessionClosed(QJsonObject)),
-            this,
-            SLOT(logServerResponds(QJsonObject)));
+//    connect(clientSocket,
+//            SIGNAL(serverResponded(QJsonObject)),
+//            this,
+//            SLOT(logServerResponds(QJsonObject)));
+
+    connect(clientSocket,&chatClient::serverResponded,
+            this,&MainWindow::logServerResponds);
+
+//    connect(clientSocket,
+//            SIGNAL(sessionClosed(QJsonObject)),
+//            this,
+//            SLOT(logServerResponds(QJsonObject)));
+
+    connect(clientSocket, &chatClient::sessionClosed,
+            this, &MainWindow::logServerResponds);
 }
 
-void MainWindow::logServerResponds(QJsonObject joRespond)
+void MainWindow::logServerResponds(setCodeCommand code, QJsonObject joRespond)
 {
     ui->teLog->insertPlainText("Respond from server:\n");
-    for (const QString& eachKey : joRespond.keys())
-    {
-        ui->teLog->insertPlainText(joRespond.value(eachKey).toString());
-
+    switch (code) {
+        case setCodeCommand::Auth:
+        {
+            ui->teLog->insertPlainText(QString::number(joRespond.value("id").toInt())+"\n");
+            ui->teLog->insertPlainText(joRespond.value("name").toString() + "\n");
+        }
+        break;
     }
+//    for (const QString& eachKey : joRespond.keys())
+//    {
+//        ui->teLog->insertPlainText(joRespond.value(eachKey).toString()+"\n");
+
+//    }
 }
 
 
