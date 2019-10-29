@@ -6,7 +6,7 @@
 #include <QJsonObject>
 
 
-enum setCodeCommand {ErrorMessage = 0, Auth = 1, SessionClosed = 2, NoConnect = 3};
+enum setCodeCommand {ErrorMessage, Auth, SessionClosed, NoConnect, TimeOut};
 
 class protocolIn: public QObject
 {

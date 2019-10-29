@@ -9,6 +9,8 @@ chatClient::chatClient()
              this, &chatClient::readRespond);
     connect(socket,&QTcpSocket::disconnected,
             this, &chatClient::slotSessionClose);
+
+
 }
 
 void chatClient::readRespond()
@@ -18,7 +20,6 @@ void chatClient::readRespond()
     joRespond = MessageIn.getData();
     codeCommand = MessageIn.getCode();
     emit serverResponded(codeCommand, joRespond);
-    //qDebug() << "client read from server  id" << id;
 }
 
 
@@ -37,6 +38,17 @@ void chatClient::slotSendQuery(QJsonObject joParam)
         //qDebug() <<"We have connect to server!!! send message";
         protocolOut MessageOut(baMessage);
         socket->write(MessageOut.getMessageToClient());
+        if (!socket->waitForReadyRead(5000)) {
+            codeCommand = setCodeCommand::TimeOut;
+            QJsonObject joTemp;
+            joTemp.insert("codeCommand",setCodeCommand::TimeOut);
+            joTemp.insert("joDataInput","server timeout");
+            emit sessionClosed(TimeOut,joTemp);
+            qDebug() << "time out";
+        }
+        else{
+            qDebug() << "not time out";
+        }
     }
     else{
         //qDebug() << "client say - no connect";

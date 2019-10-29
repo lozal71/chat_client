@@ -17,12 +17,12 @@ private:
     QTcpSocket * socket;
     QJsonObject joRespond;
     setCodeCommand codeCommand;
-    //int id;
     void readRespond();
 
 signals:
     void sessionClosed(setCodeCommand code, QJsonObject joRespond);
     void serverResponded(setCodeCommand code, QJsonObject joRrespond);
+
 };
 
 #endif // CHATCLIENT_H

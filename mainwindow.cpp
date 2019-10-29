@@ -26,19 +26,8 @@ void MainWindow::setConnect()
             this,  &MainWindow::slotSendQueryAuth);
     connect(this,  SIGNAL(SendQueryAuth(QJsonObject)),
             clientSocket, SLOT(slotSendQuery(QJsonObject)));
-//    connect(clientSocket,
-//            SIGNAL(serverResponded(QJsonObject)),
-//            this,
-//            SLOT(logServerResponds(QJsonObject)));
-
     connect(clientSocket,&chatClient::serverResponded,
             this,&MainWindow::logServerResponds);
-
-//    connect(clientSocket,
-//            SIGNAL(sessionClosed(QJsonObject)),
-//            this,
-//            SLOT(logServerResponds(QJsonObject)));
-
     connect(clientSocket, &chatClient::sessionClosed,
             this, &MainWindow::logServerResponds);
 }
@@ -49,11 +38,36 @@ void MainWindow::logServerResponds(setCodeCommand code, QJsonObject joRespond)
     switch (code) {
         case setCodeCommand::Auth:
         {
-            ui->teLog->insertPlainText(QString::number(joRespond.value("id").toInt())+"\n");
-            ui->teLog->insertPlainText(joRespond.value("name").toString() + "\n");
+            qDebug() << "joRespond.value(\"id\").toInt()" << joRespond.value("id").toInt();
+            if (joRespond.value("id").toInt() != 0){
+                ui->teLog->insertPlainText(QString::number(joRespond.value("id").toInt())+"\n");
+                ui->teLog->insertPlainText(joRespond.value("name").toString() + "\n");
+            }
+            else{
+                ui->teLog->insertPlainText("not correct login or password\n");
+            }
+
         }
         break;
+        case setCodeCommand::ErrorMessage:
+        {
+            ui->teLog->insertPlainText(joRespond.value("joDataInput").toString()+"\n");
+        }
+        break;
+        case setCodeCommand::NoConnect:{
+             ui->teLog->insertPlainText(joRespond.value("joDataInput").toString()+"\n");
+        }
+            break;
+        case setCodeCommand::SessionClosed:{
+             ui->teLog->insertPlainText(joRespond.value("joDataInput").toString()+"\n");
+        }
+            break;
+         case setCodeCommand::TimeOut:{
+             ui->teLog->insertPlainText(joRespond.value("joDataInput").toString()+"\n");
+        }
+            break;
     }
+
 //    for (const QString& eachKey : joRespond.keys())
 //    {
 //        ui->teLog->insertPlainText(joRespond.value(eachKey).toString()+"\n");

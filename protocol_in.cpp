@@ -9,6 +9,9 @@ protocolIn::protocolIn(QTcpSocket *socket)
 {
     if (socket->bytesAvailable()< 4){
         codeCommand = ErrorMessage;
+        QJsonObject joMessage;
+        joMessage.insert("codeCommand",setCodeCommand::ErrorMessage);
+        joMessage.insert("joDataInput", "error message");
     }
     else{
         QJsonObject joMessage = getJsonObjectIN(socket);
